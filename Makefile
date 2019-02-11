@@ -6,6 +6,7 @@ deps:
 	$(GOGET) github.com/stretchr/testify/assert
 	$(GOGET) github.com/spf13/viper
 	$(GOGET) github.com/spf13/cobra
+	$(GOGET) github.com/spf13/pflag
 	$(GOGET) github.com/olekukonko/tablewriter
 
 test:

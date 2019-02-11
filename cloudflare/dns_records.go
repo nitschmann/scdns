@@ -1,11 +1,15 @@
 package cloudflare
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"path"
 )
 
 type DnsRecordsService interface {
+	Create(zoneId string, dnsRecord *ModifiedDnsRecord) (*DnsRecordResult, *http.Response, error)
+	Delete(zoneId string, id string) (*DnsRecordResult, *http.Response, error)
 	Details(zoneId string, id string) (*DnsRecordResult, *http.Response, error)
 	List(zoneId string, params *RequestParams) (*DnsRecordResultList, *http.Response, error)
 }
@@ -41,11 +45,53 @@ type DnsRecordResultList struct {
 	Result []DnsRecord `json:"result"`
 }
 
+// Type for creation and updates
+type ModifiedDnsRecord struct {
+	Type     string `json:"type"`
+	Name     string `json:"name"`
+	Content  string `json:"content"`
+	Ttl      int    `json:"ttl" default:"120"`
+	Priority int    `json:"priority" default:"10"`
+	Proxied  bool   `json:"proxied" default:"false"`
+}
+
+func (o DnsRecordsServiceOperator) Create(zoneId string, dnsRecord *ModifiedDnsRecord) (*DnsRecordResult, *http.Response, error) {
+	buffer := new(bytes.Buffer)
+	json.NewEncoder(buffer).Encode(dnsRecord)
+
+	req := &Request{
+		Client: o.client,
+		Method: "POST",
+		Body:   buffer,
+		Path:   path.Join("zones", zoneId, "dns_records"),
+		Params: &RequestParams{},
+	}
+
+	var result *DnsRecordResult = &DnsRecordResult{}
+	httpResponse, err := req.ExecAndUnmarshalJson(&result)
+
+	return result, httpResponse, err
+}
+
+func (o DnsRecordsServiceOperator) Delete(zoneId string, id string) (*DnsRecordResult, *http.Response, error) {
+	req := &Request{
+		Client: o.client,
+		Method: "DELETE",
+		Path:   path.Join("zones", zoneId, "dns_records", id),
+		Params: &RequestParams{},
+	}
+
+	var result *DnsRecordResult = &DnsRecordResult{}
+	httpResponse, err := req.ExecAndUnmarshalJson(&result)
+
+	return result, httpResponse, err
+}
+
 func (o DnsRecordsServiceOperator) Details(zoneId string, id string) (*DnsRecordResult, *http.Response, error) {
 	req := &Request{
 		Client: o.client,
 		Method: "GET",
-		Path:   path.Join("zones", zoneId, "dns_records", id),
+		Path:   path.Join("zones", zoneId, "dns_records"),
 		Params: &RequestParams{},
 	}
 
