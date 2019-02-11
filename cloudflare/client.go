@@ -18,7 +18,8 @@ type Client struct {
 
 	BaseURL *url.URL
 
-	Zones ZonesService
+	DnsRecords DnsRecordsService
+	Zones      ZonesService
 }
 
 // TODO: Timeout maybe dynamically configurable?
@@ -34,6 +35,8 @@ func NewClient(credentials *Credentials) *Client {
 		credentials: credentials,
 		BaseURL:     baseURL,
 	}
+
+	c.DnsRecords = &DnsRecordsServiceOperator{client: c}
 	c.Zones = &ZonesServiceOperator{client: c}
 
 	return c

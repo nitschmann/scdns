@@ -11,6 +11,7 @@ func TestClientServices(t *testing.T) {
 	credentials := NewCredentials("email", "authKey")
 	client := NewClient(credentials)
 	services := []string{
+		"DnsRecords",
 		"Zones",
 	}
 
