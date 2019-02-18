@@ -10,7 +10,7 @@ func newZonesCmd() *cobra.Command {
 		Long:    "Zones:\nA Zone is a domain name along with its subdomains and other identities",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
-				cmd.Help()
+				newZonesListCmd().Run(cmd, args)
 			}
 		},
 	}

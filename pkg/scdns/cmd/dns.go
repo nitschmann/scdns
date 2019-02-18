@@ -5,7 +5,7 @@ import "github.com/spf13/cobra"
 func newDnsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "dns",
-		Aliases: []string{"d"},
+		Aliases: []string{"d", "dns-record"},
 		Short:   "DNS records for a zone",
 		Long:    "DNS Records:\nRepresents DNS Records for a specific Zone",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -17,6 +17,8 @@ func newDnsCmd() *cobra.Command {
 
 	cmd.PersistentFlags().StringP("zone", "z", "", "Zone ID")
 
+	cmd.AddCommand(newDnsCreateCmd())
+	cmd.AddCommand(newDnsDeleteCmd())
 	cmd.AddCommand(newDnsListCmd())
 
 	return cmd

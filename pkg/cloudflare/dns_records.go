@@ -1,8 +1,8 @@
 package cloudflare
 
 import (
-	// "bytes"
-	// "encoding/json"
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"path"
 
@@ -10,8 +10,8 @@ import (
 )
 
 type DnsRecordsService interface {
-	// Create(zoneId string, dnsRecord *ModifiedDnsRecord) (*DnsRecordResult, *http.Response, error)
-	// Delete(zoneId string, id string) (*DnsRecordResult, *http.Response, error)
+	Create(zoneId string, dnsRecord *ModifiedDnsRecord) (*DnsRecordResult, *http.Response, error)
+	Delete(zoneId string, id string) (*DnsRecordResult, *http.Response, error)
 	Details(zoneId string, id string) (*DnsRecordResult, *http.Response, error)
 	List(zoneId string, params *rest.RequestUrlParams) (*DnsRecordResultList, *http.Response, error)
 }
@@ -57,36 +57,41 @@ type ModifiedDnsRecord struct {
 	Proxied  bool   `json:"proxied" default:"false"`
 }
 
-// func (o DnsRecordsServiceOperator) Create(zoneId string, dnsRecord *ModifiedDnsRecord) (*DnsRecordResult, *http.Response, error) {
-// 	buffer := new(bytes.Buffer)
-// 	json.NewEncoder(buffer).Encode(dnsRecord)
-// 	req := &Request{
-// 		Client: o.client,
-// 		Method: "POST",
-// 		Body:   buffer,
-// 		Path:   path.Join("zones", zoneId, "dns_records"),
-// 		Params: &RequestParams{},
-// 	}
+func (d DnsRecord) Modifiable() *ModifiedDnsRecord {
+	return &ModifiedDnsRecord{
+		Type:    d.Type,
+		Name:    d.Name,
+		Content: d.Content,
+		Ttl:     d.Ttl,
+		Proxied: d.Proxied,
+	}
+}
 
-// 	var result *DnsRecordResult = &DnsRecordResult{}
-// 	httpResponse, err := req.ExecAndUnmarshalJson(&result)
+func (o DnsRecordsServiceOperator) Create(zoneId string, dnsRecord *ModifiedDnsRecord) (*DnsRecordResult, *http.Response, error) {
+	buffer := new(bytes.Buffer)
+	json.NewEncoder(buffer).Encode(dnsRecord)
 
-// 	return result, httpResponse, err
-// }
+	req := o.client.NewRequest()
+	req.Method = "POST"
+	req.Body = buffer
+	req.Path = path.Join("zones", zoneId, "dns_records")
 
-// func (o DnsRecordsServiceOperator) Delete(zoneId string, id string) (*DnsRecordResult, *http.Response, error) {
-// 	req := &Request{
-// 		Client: o.client,
-// 		Method: "DELETE",
-// 		Path:   path.Join("zones", zoneId, "dns_records", id),
-// 		Params: &RequestParams{},
-// 	}
+	var result *DnsRecordResult = &DnsRecordResult{}
+	httpResponse, err := ExecRequestAndUnmarshalJson(req, &result)
 
-// 	var result *DnsRecordResult = &DnsRecordResult{}
-// 	httpResponse, err := req.ExecAndUnmarshalJson(&result)
+	return result, httpResponse, err
+}
 
-// 	return result, httpResponse, err
-// }
+func (o DnsRecordsServiceOperator) Delete(zoneId string, id string) (*DnsRecordResult, *http.Response, error) {
+	req := o.client.NewRequest()
+	req.Method = "DELETE"
+	req.Path = path.Join("zones", zoneId, "dns_records", id)
+
+	var result *DnsRecordResult = &DnsRecordResult{}
+	httpResponse, err := ExecRequestAndUnmarshalJson(req, &result)
+
+	return result, httpResponse, err
+}
 
 func (o DnsRecordsServiceOperator) Details(zoneId string, id string) (*DnsRecordResult, *http.Response, error) {
 	req := o.client.NewRequest()

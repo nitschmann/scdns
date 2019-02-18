@@ -30,8 +30,8 @@ func newDnsListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list [ID]",
 		Aliases: []string{"l"},
-		Short:   "List all DNS records for a zone",
-		Long:    "List all DNS records for a zone in a table",
+		Short:   "List all DNS record(s) for a zone",
+		Long:    "List all or single (when ID given) DNS record(s) for a zone in a table",
 		Args:    cobra.RangeArgs(0, 1),
 		Run: func(cmd *cobra.Command, args []string) {
 			credentials := cloudflare.NewCredentials(email, authKey)
@@ -74,19 +74,9 @@ func newDnsListCmd() *cobra.Command {
 			}
 
 			if httpResponse.StatusCode == 200 {
-				tableHeaders := []string{
-					"id",
-					"type",
-					"name",
-					"content",
-					"proxiable",
-					"proxied",
-					"ttl",
-					"locked",
-					"created on",
-					"modified on",
-				}
+				tableHeaders := scdnsOutput.CloudflareDnsRecordTableHeaders()
 				table := output.Table(tableHeaders)
+
 				for _, entry := range resultList.Result {
 					line := []string{
 						entry.Id,
