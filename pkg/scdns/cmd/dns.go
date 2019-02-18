@@ -20,6 +20,7 @@ func newDnsCmd() *cobra.Command {
 	cmd.AddCommand(newDnsCreateCmd())
 	cmd.AddCommand(newDnsDeleteCmd())
 	cmd.AddCommand(newDnsListCmd())
+	cmd.AddCommand(newDnsUpdateCmd())
 
 	return cmd
 }

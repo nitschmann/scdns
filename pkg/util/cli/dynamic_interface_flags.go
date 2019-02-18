@@ -34,14 +34,18 @@ func assignFieldAsFlag(field reflect.StructField, flagSet *pflag.FlagSet) {
 	}
 }
 
-// TODO: Clean-up this method!
-func SetInterfaceFieldsFromFlags(flagSet *pflag.FlagSet, v interface{}) {
+func SetInterfaceFieldsFromFlags(flagSet *pflag.FlagSet, v interface{}, requireExplicitChange bool) {
 	values := reflect.ValueOf(v).Elem()
 
 	for i := 0; i < values.NumField(); i++ {
 		valueField := values.Field(i)
 		typeField := values.Type().Field(i)
 		flagName := flagNameForField(typeField)
+		flagValueChanged := flagSet.Changed(flagName)
+
+		if requireExplicitChange == true && flagValueChanged == false {
+			continue
+		}
 
 		switch t := typeField.Type.Name(); t {
 		case "bool":

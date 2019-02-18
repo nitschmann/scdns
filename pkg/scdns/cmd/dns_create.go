@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/nitschmann/scdns/pkg/cloudflare"
 	scdnsOutput "github.com/nitschmann/scdns/pkg/scdns/output"
@@ -34,7 +33,7 @@ func newDnsCreateCmd() *cobra.Command {
 			}
 
 			newDnsRecord := &cloudflare.ModifiedDnsRecord{}
-			cli.SetInterfaceFieldsFromFlags(cmd.Flags(), newDnsRecord)
+			cli.SetInterfaceFieldsFromFlags(cmd.Flags(), newDnsRecord, false)
 
 			result, httpResponse, err := client.DnsRecords.Create(zoneId, newDnsRecord)
 			if err != nil {
@@ -45,19 +44,7 @@ func newDnsCreateCmd() *cobra.Command {
 			if httpResponse.StatusCode == 200 {
 				tableHeaders := scdnsOutput.CloudflareDnsRecordTableHeaders()
 				table := output.Table(tableHeaders)
-				entry := result.Result
-				line := []string{
-					entry.Id,
-					entry.Type,
-					entry.Name,
-					entry.Content,
-					strconv.FormatBool(entry.Proxiable),
-					strconv.FormatBool(entry.Proxied),
-					strconv.Itoa(entry.Ttl),
-					strconv.FormatBool(entry.Locked),
-					entry.CreatedOn,
-					entry.ModifiedOn,
-				}
+				line := scdnsOutput.CloudflareDnsRecordTableLine(result.Result)
 				table.Append(line)
 
 				table.Render()

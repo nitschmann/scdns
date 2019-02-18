@@ -14,6 +14,7 @@ type DnsRecordsService interface {
 	Delete(zoneId string, id string) (*DnsRecordResult, *http.Response, error)
 	Details(zoneId string, id string) (*DnsRecordResult, *http.Response, error)
 	List(zoneId string, params *rest.RequestUrlParams) (*DnsRecordResultList, *http.Response, error)
+	Update(zoneId string, id string, dnsRecord *ModifiedDnsRecord) (*DnsRecordResult, *http.Response, error)
 }
 
 type DnsRecordsServiceOperator struct {
@@ -49,12 +50,11 @@ type DnsRecordResultList struct {
 
 // Type for creation and updates
 type ModifiedDnsRecord struct {
-	Type     string `json:"type"`
-	Name     string `json:"name"`
-	Content  string `json:"content"`
-	Ttl      int    `json:"ttl" default:"120"`
-	Priority int    `json:"priority" default:"10"`
-	Proxied  bool   `json:"proxied" default:"false"`
+	Type    string `json:"type"`
+	Name    string `json:"name"`
+	Content string `json:"content"`
+	Ttl     int    `json:"ttl" default:"120"`
+	Proxied bool   `json:"proxied" default:"false"`
 }
 
 func (d DnsRecord) Modifiable() *ModifiedDnsRecord {
@@ -111,6 +111,21 @@ func (o DnsRecordsServiceOperator) List(zoneId string, params *rest.RequestUrlPa
 	req.UrlParams = params
 
 	var result *DnsRecordResultList = &DnsRecordResultList{}
+	httpResponse, err := ExecRequestAndUnmarshalJson(req, &result)
+
+	return result, httpResponse, err
+}
+
+func (o DnsRecordsServiceOperator) Update(zoneId string, id string, dnsRecord *ModifiedDnsRecord) (*DnsRecordResult, *http.Response, error) {
+	buffer := new(bytes.Buffer)
+	json.NewEncoder(buffer).Encode(dnsRecord)
+
+	req := o.client.NewRequest()
+	req.Method = "PUT"
+	req.Body = buffer
+	req.Path = path.Join("zones", zoneId, "dns_records", id)
+
+	var result *DnsRecordResult = &DnsRecordResult{}
 	httpResponse, err := ExecRequestAndUnmarshalJson(req, &result)
 
 	return result, httpResponse, err
