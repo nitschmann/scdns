@@ -21,6 +21,7 @@ func newDnsCmd() *cobra.Command {
 	cmd.AddCommand(newDnsDeleteCmd())
 	cmd.AddCommand(newDnsListCmd())
 	cmd.AddCommand(newDnsUpdateCmd())
+	cmd.AddCommand(newDnsUpdateToPublicIpCmd())
 
 	return cmd
 }
