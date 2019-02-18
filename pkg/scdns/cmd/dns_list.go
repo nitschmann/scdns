@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/nitschmann/scdns/pkg/cloudflare"
 	scdnsOutput "github.com/nitschmann/scdns/pkg/scdns/output"
@@ -78,18 +77,7 @@ func newDnsListCmd() *cobra.Command {
 				table := output.Table(tableHeaders)
 
 				for _, entry := range resultList.Result {
-					line := []string{
-						entry.Id,
-						entry.Type,
-						entry.Name,
-						entry.Content,
-						strconv.FormatBool(entry.Proxiable),
-						strconv.FormatBool(entry.Proxied),
-						strconv.Itoa(entry.Ttl),
-						strconv.FormatBool(entry.Locked),
-						entry.CreatedOn,
-						entry.ModifiedOn,
-					}
+					line := scdnsOutput.CloudflareDnsRecordTableLine(entry)
 					table.Append(line)
 				}
 
