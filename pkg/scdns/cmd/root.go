@@ -46,6 +46,7 @@ func newCmdRoot() *cobra.Command {
 	viper.BindPFlag("authKey", cmd.PersistentFlags().Lookup("auth-key"))
 	viper.BindPFlag("email", cmd.PersistentFlags().Lookup("email"))
 
+	cmd.AddCommand(newDnsCmd())
 	cmd.AddCommand(newCmdPublicIp())
 	cmd.AddCommand(newZonesCmd())
 

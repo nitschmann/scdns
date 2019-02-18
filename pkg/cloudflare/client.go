@@ -12,8 +12,8 @@ type Client struct {
 
 	credentials *Credentials
 
-	// DnsRecords DnsRecordsService
-	Zones ZonesService
+	DnsRecords DnsRecordsService
+	Zones      ZonesService
 }
 
 func NewClient(credentials *Credentials) (*Client, error) {
@@ -28,7 +28,7 @@ func NewClient(credentials *Credentials) (*Client, error) {
 		credentials: credentials,
 	}
 
-	// client.DnsRecords = &DnsRecordsServiceOperator{client: client}
+	client.DnsRecords = &DnsRecordsServiceOperator{client: client}
 	client.Zones = &ZonesServiceOperator{client: client}
 
 	return client, nil
